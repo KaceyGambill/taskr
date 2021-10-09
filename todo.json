@@ -1,0 +1,28 @@
+{
+	"tasks": [
+		{
+			"id": "1",
+			"title": "First task",
+			"description": "i'm eater of tasks",
+			"flags": "flags, ex: #standup, #important, #remind"
+		},
+		{
+			"id": "2",
+			"title": "Second tasks",
+			"description": "This would be a second task",
+			"flags": "#standup #remind #sprint58"
+		},
+		{
+			"id": "3",
+			"title": "Fix VS",
+			"description": "all nested virtual services really must go",
+			"flags": "#standup"
+		},
+		{
+			"id": "4",
+			"title": "write namespace controller", 
+			"description": "if time permits, plz write a controller to control namespaces",
+			"flags": "#sprint58"
+		}
+	]
+}
