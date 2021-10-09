@@ -24,5 +24,11 @@
 			"description": "if time permits, plz write a controller to control namespaces",
 			"flags": "#sprint58"
 		}
+		{
+			"id": "5",
+			"title": "another task!!", 
+			"description": "limit git commit messages to 50 chars!",
+			"flags": "#standup"
+		}
 	]
 }
