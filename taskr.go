@@ -7,7 +7,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
@@ -15,22 +15,22 @@ import (
 	"fmt"
 )
 
-func main() {
+func displayDescription(description string) {
+	ui.Clear()
+  p0 := widgets.NewParagraph()
+	p0.Text = description
+	p0.SetRect(104, 50, 20, 5)
+	p0.Border = false
+	p0.WrapText = true
+	ui.Render(p0)
+}
 
+func main() {
+  log.SetFormatter(&log.JSONFormatter{})
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
-
-
-	p0 := widgets.NewParagraph()
-	p0.Text = "Borderless Text"
-	p0.SetRect(104, 50, 20, 5)
-	p0.Border = false
-
-
-
-
 
 	parsed := parseTasks.ParseTasks() 
 
@@ -40,25 +40,15 @@ func main() {
 		title := fmt.Sprintf("[%s] %s", parsed.Tasks[i].ID, parsed.Tasks[i].Title)
 		l.Rows = append(l.Rows, title)
 	}
-//	l.Rows = append(l.Rows, "TEST")
 
-//	l.Rows = []string{
-//		"[0] github.com/gizak/termui/v3",
-//		"[1] [你好，世界](fg:blue)",
-//		"[2] [こんにちは世界](fg:red)",
-//		"[3] [color](fg:white,bg:green) output",
-//		"[4] output.go",
-//		"[5] random_out.go",
-//		"[6] dashboard.go",
-//		"[7] foo",
-//		"[8] bar",
-//		"[9] baz",
-//	}
 	l.TextStyle = ui.NewStyle(ui.ColorYellow)
 	l.WrapText = false
 	l.SetRect(0, 0, 100, 20) // left margin/padding? top margin/padding, width, height?
 
 	ui.Render(l)
+
+//	log.Info("PARSED: ")
+//	log.Info(parsed.Tasks[0])
 
 	previousKey := ""
 	uiEvents := ui.PollEvents()
@@ -69,27 +59,37 @@ func main() {
 			return
 		case "j", "<Down>":
 			l.ScrollDown()
+	    ui.Render(l)
 		case "k", "<Up>":
 			l.ScrollUp()
+	    ui.Render(l)
 		case "<C-d>":
 			l.ScrollHalfPageDown()
+	    ui.Render(l)
 		case "<C-u>":
 			l.ScrollHalfPageUp()
+	    ui.Render(l)
 		case "<C-f>":
 			l.ScrollPageDown()
+	    ui.Render(l)
 		case "<C-b>":
 			l.ScrollPageUp()
+	    ui.Render(l)
 		case "g":
 			if previousKey == "g" {
 				l.ScrollTop()
+	      ui.Render(l)
 			}
 		case "<Home>":
 			l.ScrollTop()
+	    ui.Render(l)
 		case "G", "<End>":
 			l.ScrollBottom()
+	    ui.Render(l)
 		case "o":
-			ui.Close()
-			ui.Render(p0)
+	  //  log.Info(l.SelectedRow)
+		  displayDescription(parsed.Tasks[l.SelectedRow].Description)	
+			ui.Clear()
 		}
 
 		if previousKey == "g" {
@@ -98,6 +98,6 @@ func main() {
 			previousKey = e.ID
 		}
 
-		ui.Render(l)
+
 	}
 }
