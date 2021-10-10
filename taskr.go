@@ -9,46 +9,107 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 
+	"fmt"
+	"taskr/parseTasks"
+
 	ui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
-	"taskr/parseTasks"
-	"fmt"
+
 )
+
+//type Tasks struct {
+//	ID string,
+//	Title string,
+//	Description string,
+//	Flags []string,
+//}
 
 func displayDescription(description string) {
 	ui.Clear()
-  p0 := widgets.NewParagraph()
+	p0 := widgets.NewParagraph()
 	p0.Text = description
 	p0.SetRect(104, 50, 20, 5)
 	p0.Border = false
 	p0.WrapText = true
 	ui.Render(p0)
+
+	//	uiEvents := ui.PollEvents()
+	//	for {
+	//		e := <-uiEvents
+	//		switch e.ID {
+	//		case "q":
+	//			return
+	//		}
+	//	}
+
+}
+
+//func displayTaskList(parsedList parseTasks.Tasks) {
+////  log.Info(parsedList)
+//  ui.Clear()
+//	taskList := widgets.NewList()
+//	taskList.Title = "Task List"
+//	for i := 0; i < len(parsedList.Tasks); i++ {
+//		title := fmt.Sprintf("[%s] %s", parsedList.Tasks[i].ID, parsedList.Tasks[i].Title)
+//		taskList.Rows = append(taskList.Rows, title)
+//	}
+//	taskList.TextStyle = ui.NewStyle(ui.ColorYellow)
+//	taskList.WrapText = true
+//	taskList.SetRect(0, 0, 100, 20)
+//	ui.Render(taskList)
+//}
+func userInput(description string) {
+	ui.Clear()
+	p0 := widgets.NewParagraph()
+	p0.Text = description
+	p0.SetRect(104, 50, 20, 5)
+	p0.Border = false
+	p0.WrapText = true
+	ui.Render(p0)
+	fmt.Println("Enter something: ")
+	var stringo string
+	fmt.Scanln(&stringo)
+	p0.Text = stringo
+	fmt.Println("Entered: ", stringo)
+	ui.Clear()
+	ui.Render(p0)
 }
 
 func main() {
-  log.SetFormatter(&log.JSONFormatter{})
+	log.SetFormatter(&log.JSONFormatter{})
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
-	parsed := parseTasks.ParseTasks() 
+	keyList := widgets.NewList()
+	keyList.Rows = []string{
+		"q - quit",
+		"j - down, k - up",
+		"o - open, e - edit",
+		"a - add, d - delete",
+	}
+	keyList.SetRect(0, 0, 30, 7)
+	keyList.Border = true
+	keyList.BorderStyle.Fg = ui.ColorYellow
 
-	l := widgets.NewList()
-	l.Title = "List"
+	parsed := parseTasks.ParseTasks()
+	//	displayTaskList(parsed)
+	taskList := widgets.NewList()
+	taskList.Title = "List"
 	for i := 0; i < len(parsed.Tasks); i++ {
 		title := fmt.Sprintf("[%s] %s", parsed.Tasks[i].ID, parsed.Tasks[i].Title)
-		l.Rows = append(l.Rows, title)
+		taskList.Rows = append(taskList.Rows, title)
 	}
 
-	l.TextStyle = ui.NewStyle(ui.ColorYellow)
-	l.WrapText = false
-	l.SetRect(0, 0, 100, 20) // left margin/padding? top margin/padding, width, height?
+	taskList.TextStyle = ui.NewStyle(ui.ColorYellow)
+	taskList.WrapText = false
+	taskList.SetRect(0, 7, 100, 20) // left margin/padding? top margin/padding, width, height?
 
-	ui.Render(l)
+	ui.Render(keyList, taskList)
 
-//	log.Info("PARSED: ")
-//	log.Info(parsed.Tasks[0])
+	//	log.Info("PARSED: ")
+	//	log.Info(parsed.Tasks[0])
 
 	previousKey := ""
 	uiEvents := ui.PollEvents()
@@ -57,39 +118,44 @@ func main() {
 		switch e.ID {
 		case "q", "<C-c>":
 			return
+			//    case "q":
+			//			ui.Clear()
+			//			ui.Render(taskList)
 		case "j", "<Down>":
-			l.ScrollDown()
-	    ui.Render(l)
+			taskList.ScrollDown()
+			ui.Render(keyList, taskList)
 		case "k", "<Up>":
-			l.ScrollUp()
-	    ui.Render(l)
+			taskList.ScrollUp()
+			ui.Render(keyList, taskList)
 		case "<C-d>":
-			l.ScrollHalfPageDown()
-	    ui.Render(l)
+			taskList.ScrollHalfPageDown()
+			ui.Render(keyList, taskList)
 		case "<C-u>":
-			l.ScrollHalfPageUp()
-	    ui.Render(l)
+			taskList.ScrollHalfPageUp()
+			ui.Render(keyList, taskList)
 		case "<C-f>":
-			l.ScrollPageDown()
-	    ui.Render(l)
+			taskList.ScrollPageDown()
+			ui.Render(keyList, taskList)
 		case "<C-b>":
-			l.ScrollPageUp()
-	    ui.Render(l)
+			taskList.ScrollPageUp()
+			ui.Render(keyList, taskList)
 		case "g":
 			if previousKey == "g" {
-				l.ScrollTop()
-	      ui.Render(l)
+				taskList.ScrollTop()
+				ui.Render(keyList, taskList)
 			}
 		case "<Home>":
-			l.ScrollTop()
-	    ui.Render(l)
+			taskList.ScrollTop()
+			ui.Render(keyList, taskList)
 		case "G", "<End>":
-			l.ScrollBottom()
-	    ui.Render(l)
+			taskList.ScrollBottom()
+			ui.Render(keyList, taskList)
 		case "o":
-	  //  log.Info(l.SelectedRow)
-		  displayDescription(parsed.Tasks[l.SelectedRow].Description)	
+			//  log.Info(l.SelectedRow)
+			displayDescription(parsed.Tasks[taskList.SelectedRow].Description)
 			ui.Clear()
+		case "e":
+			userInput(parsed.Tasks[taskList.SelectedRow].Description)
 		}
 
 		if previousKey == "g" {
@@ -97,7 +163,6 @@ func main() {
 		} else {
 			previousKey = e.ID
 		}
-
 
 	}
 }
