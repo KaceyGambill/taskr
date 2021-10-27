@@ -1,0 +1,15 @@
+name: first
+
+on: push
+
+jobs:
+  job1:
+    name: first job
+    runs-on: ubuntu-latest
+    steps:
+      - name: step one
+        uses: actions/checkout@v2.0.0
+      - run: python3 hello.py
+      - name: step two
+        uses: actions/checkout@v2.0.0
+      - run: env | sort
